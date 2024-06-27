@@ -19,7 +19,6 @@ class DriverTester():
         """
         self._logger = logging.getLogger('DriverTester')
         self._logger.setLevel(log_level)
-        if not self._logger.handlers: self._logger.addHandler(logging.StreamHandler())
         
         self._pipe, pipe = multiprocessing.Pipe()
         self._driver_manager = threading.Thread(target=RunDriverManager, args=(pipe, use_processes, log_level,), daemon=True)

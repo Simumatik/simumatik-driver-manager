@@ -7,6 +7,8 @@ import os
 
 from drivers import *
 
+VERSION = "1.0.0"
+
 def RunDriverManager(pipe:multiprocessing.Pipe, use_processes:bool=False, log_level:int=logging.ERROR) -> None:
     _object = DriverManager(pipe, use_processes, log_level)
     _object.run()
@@ -113,7 +115,6 @@ class DriverManager():
         """
         self._logger = logging.getLogger('DriverManager')
         self._logger.setLevel(log_level)
-        if not self._logger.handlers: self._logger.addHandler(logging.StreamHandler())
         self._log_level = log_level
         
         self._pipe = pipe
@@ -121,7 +122,7 @@ class DriverManager():
         self._drivers = {} # Dict to store drivers: {<driver_name>:<driver_struct>}
         self._driver_counter = 0
         self._handles = {} # Dict to store variables data: {<handle>: (<var_id>, <driver name>)}
-        self._logger.info("Driver Manager: Created")        
+        self._logger.info(f"Driver Manager: Started v{VERSION}")        
         self._logger.info(f"Driver Manager: Status File path is {STATUS_FILE_PATH}")
         self._running = True
         self._start_time = int(time.perf_counter())
