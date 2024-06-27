@@ -1,0 +1,9 @@
+crccheck
+numpy
+opcua
+paho-mqtt
+pyads
+pycomm3
+pyModbusTCP
+roslibpy
+fins
