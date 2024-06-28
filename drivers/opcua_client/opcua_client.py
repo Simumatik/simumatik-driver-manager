@@ -103,7 +103,7 @@ class opcua_client(driver):
         var_paths = []
         var_names = []
         for var_id in variables.keys():
-            if '=' in var_id:
+            if 'ns=' in var_id[:3]:
                 var_identifiers.append(var_id)
             elif '.' in var_id:
                 var_paths.append(var_id)
@@ -268,8 +268,8 @@ class opcua_client(driver):
 
         while identifiers:
             identifier = identifiers.pop()
-            child_node = self._connection.get_node(identifier)
             try:
+                child_node = self._connection.get_node(identifier)
                 child_node.get_attribute(ua.AttributeIds.DisplayName)
             except:
                 child_node = None
