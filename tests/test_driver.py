@@ -19,7 +19,7 @@ import logging
 from os import path
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from driver_tester import Test_Driver
+from driver_manager.driver_tester import Test_Driver
 from setup_data import setup_data
 
 test_drivers = ['robodk_driver'] # JUST MODIFY THIS LIST TO TEST ONE OR MORE DRIVERS

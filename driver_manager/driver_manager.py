@@ -5,7 +5,7 @@ import threading
 import enum 
 import os
 
-from drivers import *
+from driver_manager.drivers import *
 
 VERSION = "1.0.0"
 

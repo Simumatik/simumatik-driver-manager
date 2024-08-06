@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+    "setuptools >= 61",
+    "wheel",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simumatik-driver_manager"
+dynamic = ["version"]
+authors = [
+    {name = "Mikel Ayani"},
+]
+description = "Driver manager to communicate with automation hardware and software"
+readme = "README.md"
+keywords = ["simumatik", "gateway", "drivers"]
+license = {text = "GNU GENERAL PUBLIC LICENSE"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: GNU GENERAL PUBLIC LICENSE",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "crccheck >= 1.3.0",
+    "fins >= 1.0.3",
+    "opcua >= 0.98.13",
+    "paho-mqtt >= 2.1.0",
+    "pyads >= 3.4.2",
+    "pycomm3 >= 1.2.14",
+    "pyModbusTCP >= 0.2.2",
+    "pythonnet >= 3.0.3",
+    "pywin32 >= 306",
+    "roslibpy >= 1.7.0",
+    "numpy"
+]
+requires-python = ">= 3.8"
+
+[project.urls]
+homepage = "https://github.com/Simumatik/simumatik-controller-bridge"
+
+[tool.setuptools]
+packages = ["driver_manager"]
+
+[tool.setuptools.dynamic]
+version = {attr = "driver_manager.driver_manager.VERSION"}

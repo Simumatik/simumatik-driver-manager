@@ -3,8 +3,8 @@ import threading
 import logging
 import time
 
-from driver_manager import RunDriverManager, DriverMgrCommands
-from drivers.driver import VariableOperation, VariableDatatype
+from driver_manager.driver_manager import RunDriverManager, DriverMgrCommands
+from driver_manager.drivers.driver import VariableOperation, VariableDatatype
 
 class DriverTester():
     

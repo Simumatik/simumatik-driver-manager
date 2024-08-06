@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from drivers.driver import VariableOperation, VariableDatatype
+from driver_manager.drivers.driver import VariableOperation, VariableDatatype
 
 setup_data = {}
 
