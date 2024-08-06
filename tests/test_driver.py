@@ -24,10 +24,11 @@ from setup_data import setup_data
 
 test_drivers = ['robodk_driver'] # JUST MODIFY THIS LIST TO TEST ONE OR MORE DRIVERS
 
+STATUS_FILE_PATH = path.dirname(path.abspath(__file__))+'/Driver_Manager_status.txt'        
+
 if __name__ == '__main__':
     my_setup_data = {}
     for driver_name in test_drivers:
         if driver_name in setup_data:
             my_setup_data.update({driver_name:setup_data[driver_name]})
-            
-    Test_Driver(setup_data=my_setup_data, run_time=10, log_level=logging.INFO, sleep_time=1e-2)
+    Test_Driver(setup_data=my_setup_data, run_time=10, log_level=logging.INFO, sleep_time=1e-2, status_file_path=STATUS_FILE_PATH)

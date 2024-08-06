@@ -3,14 +3,13 @@ import logging
 import multiprocessing
 import threading
 import enum 
-import os
 
 from driver_manager.drivers import *
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
-def RunDriverManager(pipe:multiprocessing.Pipe, use_processes:bool=False, log_level:int=logging.ERROR) -> None:
-    _object = DriverManager(pipe, use_processes, log_level)
+def RunDriverManager(pipe:multiprocessing.Pipe, use_processes:bool=False, log_level:int=logging.ERROR, status_file_path:str='') -> None:
+    _object = DriverManager(pipe, use_processes, log_level, status_file_path)
     _object.run()
     
 def RunDriver(driver_object:any, name:str, pipe:multiprocessing.Pipe, params:dict, log_level:int=logging.ERROR) -> None:
@@ -99,11 +98,9 @@ class VariableStructure():
     def addHandle(self, handle:str):
         self.handlers.append(handle)
 
-STATUS_FILE_PATH = os.path.dirname(os.path.abspath(__file__))+'/Driver_Manager_status.txt'
-
 class DriverManager():
     
-    def __init__(self, pipe:multiprocessing.Pipe, use_processes:bool=False, log_level:int=logging.ERROR) -> None:
+    def __init__(self, pipe, use_processes:bool=False, log_level:int=logging.ERROR, status_file_path:str='') -> None:
         """
 
         :param use_processes: Allows to use processes instead of threads.
@@ -119,12 +116,16 @@ class DriverManager():
         
         self._pipe = pipe
         self._use_processes = use_processes
+        self._status_file_path = status_file_path
         self._drivers = {} # Dict to store drivers: {<driver_name>:<driver_struct>}
         self._driver_counter = 0
         self._handles = {} # Dict to store variables data: {<handle>: (<var_id>, <driver name>)}
-        self._logger.info(f"Driver Manager: Started v{VERSION}")        
-        self._logger.info(f"Driver Manager: Status File path is {STATUS_FILE_PATH}")
-        self._running = True
+        self._logger.info(f"Driver Manager: Started v{VERSION}")     
+        if self._status_file_path:    
+            self._logger.info(f"Driver Manager: Status File path is {self._status_file_path}")
+        else:
+            self._logger.info(f"Driver Manager: Status File path not defined.")
+        self._running = True        
         self._start_time = int(time.perf_counter())
         self._last_status_record = 0
         self._save_status_time = 0
@@ -132,7 +133,7 @@ class DriverManager():
     def saveStatus(self, now_sec:int):
         start = time.perf_counter()
         try:
-            with open(STATUS_FILE_PATH, 'w') as f:
+            with open(self._status_file_path, 'w') as f:
                 N = 100
                 f.write(f'Driver Manager status: (clock = {now_sec}s, {round(self._save_status_time*1000,2)}ms to write)\n') 
                 f.write('-'*N+'\n')
@@ -146,7 +147,7 @@ class DriverManager():
                         f.write(f'    - {var_id} {var_struct.handlers} = {var_struct.value}  (R:{var_struct.read_count} W:{var_struct.write_count}) - {var_struct.info}\n')
                     f.write('-'*N+'\n')
         except:
-            pass
+            self._logger.error("Driver Manager: Status file cannot be written")
         self._save_status_time = time.perf_counter() - start
         
     def run(self) -> None:
@@ -252,7 +253,8 @@ class DriverManager():
                         "VARIABLE_COUNT":len(self._handles),
                     }
                 ))
-                self.saveStatus(now_sec)            
+                if self._status_file_path:
+                    self.saveStatus(now_sec)            
             
             # SLEEP IF NO ACTIVITY
             if can_sleep:

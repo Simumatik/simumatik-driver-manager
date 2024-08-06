@@ -8,7 +8,7 @@ from driver_manager.drivers.driver import VariableOperation, VariableDatatype
 
 class DriverTester():
     
-    def __init__(self, use_processes:bool=False, log_level:int=logging.ERROR) -> None:
+    def __init__(self, use_processes:bool=False, log_level:int=logging.ERROR, status_file_path:str='') -> None:
         """
         :param use_processes: Allows to use processes instead of threads.
             it will have impact in performance and used resources
@@ -21,7 +21,7 @@ class DriverTester():
         self._logger.setLevel(log_level)
         
         self._pipe, pipe = multiprocessing.Pipe()
-        self._driver_manager = threading.Thread(target=RunDriverManager, args=(pipe, use_processes, log_level,), daemon=True)
+        self._driver_manager = threading.Thread(target=RunDriverManager, args=(pipe, use_processes, log_level, status_file_path,), daemon=True)
         self._logger.debug("Driver Tester: Running using threads")
         self._driver_manager.start()
         
@@ -98,7 +98,7 @@ class DriverTester():
             self._driver_manager = None
             self._logger.debug("Driver Tester: Cleaned up, DriverManager closed")
     
-def Test_Driver(setup_data:dict, run_time:int=20, log_level:int=logging.INFO, sleep_time:float=1e-3):
+def Test_Driver(setup_data:dict, run_time:int=20, log_level:int=logging.INFO, sleep_time:float=1e-3, status_file_path:str=''):
     # SETUP LOGGING
     LOG_FORMAT = '[%(asctime)s] - %(name)s - %(levelname)s - %(message)s'
     LOG_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S%z' # ISO8601 date format with timezone offset from UTC+0: YYYY-mm-ddTHH:MM:SS+HH:MM
@@ -123,7 +123,7 @@ def Test_Driver(setup_data:dict, run_time:int=20, log_level:int=logging.INFO, sl
             if var_data.get('operation') in [VariableOperation.WRITE, VariableOperation.BOTH]:
                 input_variables[var_data.get('handle')] = (var_data.get('datatype'), var_data.get('size'))
     # SETUP DRIVER TESTER
-    test = DriverTester(use_processes=False, log_level=log_level)
+    test = DriverTester(use_processes=False, log_level=log_level, status_file_path=status_file_path)
     test.setupDrivers(setup_data)
     # START LOOP
     start = time.perf_counter()
