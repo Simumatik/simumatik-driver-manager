@@ -67,8 +67,15 @@ class fanuc_roboguide(driver):
         
         : returns: True if connection established False if not
         """
+        if not ROBOT_INTERFACE_FOUND:
+            self.sendDebugInfo(f"Robot Interface DLL not found!")
+            return False
         try:
             self._connection = Core()
+        except Exception as e:
+            self.sendDebugInfo(f"Robot Interface initialization error.")
+            return False
+        try:
             if self.port:
                 self._connection.PortNumber = self.port
             self._datatable = self._connection.get_DataTable()
@@ -81,8 +88,7 @@ class fanuc_roboguide(driver):
             else:
                 self.sendDebugInfo(f"Error getting current position")
         except Exception as e:
-            self.sendDebugInfo(f"Robot Interface initialization error.")
-        
+            self.sendDebugInfo(f"Robot Interface connection error.")
         return False
 
 
