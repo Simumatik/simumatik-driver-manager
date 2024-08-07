@@ -28,7 +28,6 @@ try:
             p = os.path.dirname(sys.executable)
         else:
             p = os.path.dirname(os.path.abspath(__file__))
-        print(f"RobotInterfaceDotNet DLL path is {p}")
         sys.path.append(p)
         clr.FindAssembly("RobotInterfaceDotNet")
         clr.AddReference("RobotInterfaceDotNet")

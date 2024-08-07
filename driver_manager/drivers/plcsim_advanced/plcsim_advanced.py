@@ -23,7 +23,10 @@ from ..driver import driver, VariableQuality
 try:
     if os.name == 'nt':# Just try on windows
         import clr
-        p = os.path.dirname(os.path.abspath(__file__))
+        if getattr(sys, 'frozen', False):
+            p = os.path.dirname(sys.executable)
+        else:
+            p = os.path.dirname(os.path.abspath(__file__))
         sys.path.append(p)
         if sys.maxsize > 2**32: # 64-Bit OS
             clr.FindAssembly("Siemens.Simatic.Simulation.Runtime.Api.x64")
