@@ -24,7 +24,10 @@ ROBOT_INTERFACE_FOUND = False
 try:
     if os.name == 'nt':# Just try on windows
         import clr
-        p = os.path.dirname(os.path.abspath(__file__))
+        if getattr(sys, 'frozen', False):
+            p = os.path.dirname(sys.executable)
+        else:
+            p = os.path.dirname(os.path.abspath(__file__))
         print(f"RobotInterfaceDotNet DLL path is {p}")
         sys.path.append(p)
         clr.FindAssembly("RobotInterfaceDotNet")
