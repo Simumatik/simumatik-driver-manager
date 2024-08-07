@@ -25,6 +25,7 @@ try:
     if os.name == 'nt':# Just try on windows
         import clr
         p = os.path.dirname(os.path.abspath(__file__))
+        print(f"RobotInterfaceDotNet DLL path is {p}")
         sys.path.append(p)
         clr.FindAssembly("RobotInterfaceDotNet")
         clr.AddReference("RobotInterfaceDotNet")
@@ -95,7 +96,8 @@ class fanuc_roboguide(driver):
     def disconnect(self):
         """ Disconnect driver.
         """
-        self._connection.Disconnect()
+        if self._connection:
+            self._connection.Disconnect()
 
 
     def addVariables(self, variables: dict):
