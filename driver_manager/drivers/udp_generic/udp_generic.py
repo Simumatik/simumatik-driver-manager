@@ -100,8 +100,11 @@ class udp_generic(driver):
         
         """
         self.variables.update(variables)
-        for var_id in self.variables:
-            self.variables[var_id]['value'] = self.defaultVariableValue(self.variables[var_id]['datatype'], self.variables[var_id]['size'])
+        for var_id, var_data in self.variables.items():
+            if var_data['operation'] in [VariableOperation.WRITE, VariableOperation.BOTH]:
+                self.variables[var_id]['value'] = self.defaultVariableValue(self.variables[var_id]['datatype'], self.variables[var_id]['size'])
+            else:
+                self.variables[var_id]['value'] = None
 
 
     def readVariables(self, variables: list) -> list:
