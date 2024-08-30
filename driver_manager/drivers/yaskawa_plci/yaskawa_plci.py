@@ -19,7 +19,7 @@ import sys
 import os
 import winreg
 
-from ..driver import driver, VariableQuality, VariableDatatype
+from ..driver import driver, VariableQuality, VariableDatatype, VariableOperation
 
 # Import SDK
 YASKAWA_PLCI_FOUND = False
@@ -118,7 +118,10 @@ class yaskawa_plci(driver):
                 res = self._service.ReadVariables(varList)
                 for value in res:
                     if value is not None:
-                        var_data['value'] = None # Force first update
+                        if var_data['operation'] == VariableOperation.READ:
+                            var_data['value'] = None # Force first update
+                        else:
+                            var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                         var_data['path'] = path 
                         self.variables[var_id] = var_data
                         self.sendDebugVarInfo((f'SETUP: Variable found {var_id}', var_id))

@@ -18,7 +18,7 @@ import socket
 import multiprocessing
 
 from .iso_on_tcp import (getAreaFromString, PDULengthRequest, PDUReadAreas, PDUWriteAreas, connectPLC)
-from ..driver import driver
+from ..driver import driver, VariableOperation
 
 
 class s7protocol(driver):
@@ -105,7 +105,10 @@ class s7protocol(driver):
             area = getAreaFromString(var_id, var_data['datatype'])
             if area is not None:
                 var_data['area'] = area
-                var_data['value'] = None
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             else:
                 self.sendDebugVarInfo(('SETUP: Bad variable definition: {}'.format(var_id), var_id))

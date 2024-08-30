@@ -18,7 +18,7 @@ import multiprocessing
 from urllib import request
 import json
 
-from ..driver import driver, VariableQuality
+from ..driver import driver, VariableQuality, VariableOperation
 
 class micro800_http(driver):
     '''
@@ -86,7 +86,10 @@ class micro800_http(driver):
         """
         for var_id, var_data in variables.items():
             if var_id in self._output_vars or var_id in self._input_vars:
-                var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             else:
                 self.sendDebugVarInfo((f'SETUP: Variable not found: {var_id}', var_id))

@@ -16,7 +16,7 @@
 
 import multiprocessing
 
-from ..driver import VariableDatatype, driver, VariableQuality 
+from ..driver import VariableDatatype, driver, VariableQuality, VariableOperation
 
 class twincat_ads(driver):
     '''
@@ -67,8 +67,11 @@ class twincat_ads(driver):
         for var_id, var_data in variables.items():
             try:
                 # Try to read, throws exception if the variable is not found
-                self._connection.read_by_name(var_id)
-                var_data['value'] = None # Force first update
+                value = self._connection.read_by_name(var_id)
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = value
                 self.variables[var_id] = var_data 
             except Exception as e:
                 self.sendDebugInfo(f'SETUP: {e} \"{var_id}\"')

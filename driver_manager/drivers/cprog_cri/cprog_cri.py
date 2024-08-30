@@ -18,7 +18,7 @@ import socket
 import time
 import multiprocessing
 
-from ..driver import VariableDatatype, driver, VariableQuality
+from ..driver import VariableDatatype, driver, VariableQuality, VariableOperation
 
 class cprog_cri(driver):
     '''
@@ -100,7 +100,10 @@ class cprog_cri(driver):
         """
         for var_id, var_data in variables.items():
             if var_id in ['Axis', 'DIN', 'DOUT', 'GSIG', 'GRIPPERSTATE']:
-                var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             else:
                 self.sendDebugVarInfo((f'SETUP: Variable not suported: {var_id}', var_id))

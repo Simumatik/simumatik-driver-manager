@@ -21,7 +21,7 @@ import time
 from crccheck.crc import Crc16Kermit
 import numpy as np
 
-from ..driver import driver, VariableQuality
+from ..driver import driver, VariableQuality, VariableOperation
 
 CMD_FORMAT = 'c 4s 2s 2s 4s c'
 CMD_TOT_LEN = struct.calcsize(CMD_FORMAT)
@@ -122,7 +122,10 @@ class hokuyo_uam(driver):
         
         """
         for var_id, var_data in variables.items():
-            var_data['value'] = None # Force first update
+            if var_data['operation'] == VariableOperation.READ:
+                var_data['value'] = None # Force first update
+            else:
+                var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
             self.variables[var_id] = var_data
 
 

@@ -107,7 +107,10 @@ class rosbridge(driver):
                     # Use 'data' as the value field for all std_msgs
                     message_field = 'data'
 
-                var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.new_values[var_id] = var_data['value']
 
                 if var_data['operation'] == VariableOperation.WRITE:

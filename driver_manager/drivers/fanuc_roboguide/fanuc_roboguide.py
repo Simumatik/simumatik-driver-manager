@@ -143,7 +143,10 @@ class fanuc_roboguide(driver):
                     except:
                         self.sendDebugVarInfo((f'SETUP: Variable port number is wrong: {var_id}', var_id))
                         continue
-                    var_data['value'] = None # Force first update
+                    if var_data['operation'] == VariableOperation.READ:
+                        var_data['value'] = None # Force first update
+                    else:
+                        var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                     self.variables[var_id] = var_data
                     self.sendDebugVarInfo((f'SETUP: Variable found {var_id}', var_id))
                     continue

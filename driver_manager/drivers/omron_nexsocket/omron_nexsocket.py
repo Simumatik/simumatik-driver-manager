@@ -19,7 +19,7 @@ import winreg
 import struct
 import ctypes
 
-from ..driver import driver, VariableDatatype, VariableQuality
+from ..driver import driver, VariableDatatype, VariableQuality, VariableOperation
 
 NEXSOCKET_PORT = 7000
 SOCKET_ERROR = -1
@@ -119,7 +119,10 @@ class omron_nexsocket(driver):
                 var_data['tagRevision'] = tagRevision
                 var_data['address'] = address
                 var_data['byte_size'] = byte_size
-                var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             except Exception as e:
                 self.sendDebugVarInfo((f'SETUP: Bad variable definition: {var_id}, {e}', var_id))

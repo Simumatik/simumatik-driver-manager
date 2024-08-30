@@ -17,7 +17,7 @@
 import multiprocessing
 from pycomm3 import LogixDriver
 
-from ..driver import driver, VariableQuality, VariableDatatype
+from ..driver import driver, VariableQuality, VariableDatatype, VariableOperation
 
 class allenbradley_logix(driver):
     '''
@@ -76,12 +76,14 @@ class allenbradley_logix(driver):
         Any error adding a variable should be communicated to the server using sendDebugInfo() method.
         : param variables: Variables to add in a dict following the setup format. (See documentation) 
         """
-        for var_id in list(variables.keys()):
-            var_data = dict(variables[var_id])
+        for var_id, var_data in variables.items():
             try:
                 var_data['logix_data_type'] = self._connection.get_tag_info(var_id)['data_type_name']
-                var_data['value'] = None
-                self.variables[var_id] = var_data 
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                self.variables[var_id] = var_data
             except Exception as e:
                 self.sendDebugInfo(f'SETUP: {e} \"{var_id}\"')
                 

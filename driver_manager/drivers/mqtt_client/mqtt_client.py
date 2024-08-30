@@ -113,7 +113,10 @@ class mqtt_client(driver):
         """
         for var_id, var_data in variables.items():
             try:
-                var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 if var_data['operation'] == VariableOperation.WRITE:
                     self._connection.publish(var_id, var_data['value'], retain=self.retain)
                 if var_data['operation'] == VariableOperation.READ:
