@@ -18,7 +18,7 @@ import multiprocessing
 import fins.udp
 
 from ..driver import driver
-from ..driver import VariableQuality, VariableDatatype
+from ..driver import VariableQuality, VariableDatatype, VariableOperation
 
 class omron_fins(driver):
     '''
@@ -94,7 +94,10 @@ class omron_fins(driver):
             area = self.getAreaFromString(var_id, var_data['datatype'])
             if area != None:
                 var_data['area'] = area
-                var_data['value'] = None
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             else:
                 self.sendDebugVarInfo(('SETUP: Bad variable definition: {}'.format(var_id), var_id))

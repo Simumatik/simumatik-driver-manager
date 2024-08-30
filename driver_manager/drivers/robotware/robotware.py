@@ -19,7 +19,7 @@ import sys
 import os
 import winreg
 
-from ..driver import driver, VariableQuality
+from ..driver import driver, VariableQuality, VariableOperation
 
 # Import SDK
 ABB_SDK_FOUND = False
@@ -151,7 +151,10 @@ class robotware(driver):
                         value = self.get_signal_value(signal, var_data['datatype'])
                         if value is not None:
                             var_data['signal'] = signal
-                            var_data['value'] = None # Force first update
+                            if var_data['operation'] == VariableOperation.READ:
+                                var_data['value'] = None # Force first update
+                            else:
+                                var_data['value'] = value
                             self.variables[var_id] = var_data
                             self.sendDebugVarInfo((f'SETUP: Variable found {var_id}', var_id))
                     continue

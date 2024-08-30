@@ -20,7 +20,7 @@ import socket
 import struct
 import random
 
-from ..driver import VariableQuality, VariableDatatype, driver
+from ..driver import VariableQuality, VariableDatatype, driver, VariableOperation
 
 def axis_act_to_list(read_data):
     '''
@@ -130,7 +130,10 @@ class kuka_varproxy(driver):
                 self.msg_id = (self.msg_id + 1) % 65536
                 self._connection.send(pack_read_request(var_id.encode(), self.msg_id))
                 read_response(self._connection.recv(256), self.msg_id)
-                var_data['value'] = None    
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data 
             except Exception as e:
                 self.sendDebugInfo(f'SETUP: {e} \"{var_id}\"')

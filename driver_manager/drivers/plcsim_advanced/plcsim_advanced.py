@@ -18,7 +18,7 @@ import sys
 import os
 import multiprocessing
 
-from ..driver import driver, VariableQuality
+from ..driver import driver, VariableQuality, VariableOperation
 
 try:
     if os.name == 'nt':# Just try on windows
@@ -94,7 +94,10 @@ class plcsim_advanced(driver):
                 var_data['SDataValueByName'].Name = var_id
                 var_data['SDataValueByName'].DataValue = self._connection.Read(var_data['SDataValueByName'].Name)
                 var_data['PrimitiveDataType'] = var_data['SDataValueByName'].DataValue.Type
-                var_data['value'] = None
+                if var_data['operation'] == VariableOperation.READ:
+                    var_data['value'] = None # Force first update
+                else:
+                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             except Exception as e:
                 print(e)

@@ -20,7 +20,7 @@ import multiprocessing
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from robolink import Robolink, ITEM_TYPE_ROBOT
-from ..driver import driver, VariableQuality
+from ..driver import driver, VariableQuality, VariableOperation
 
 class robodk_api(driver):
     '''
@@ -93,7 +93,10 @@ class robodk_api(driver):
                 else:
                     value = self._connection.getParam(var_id)
                     if value is not None:
-                        var_data['value'] = None # Force first update
+                        if var_data['operation'] == VariableOperation.READ:
+                            var_data['value'] = None # Force first update
+                        else:
+                            var_data['value'] = value
                         self.variables[var_id] = var_data
                         self.sendDebugVarInfo((f'SETUP: Variable found {var_id}', var_id))
                         continue

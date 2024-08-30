@@ -144,7 +144,7 @@ class opcda_client(driver):
         for var_id, var_data in variables.items():
             # Add client handle to variables dict
             self.handle_num += 1
-            variables[var_id]['client_handle'] = self.handle_num
+            var_data['client_handle'] = self.handle_num
 
             try:
                 # Add variables to the read/write groups
@@ -156,12 +156,12 @@ class opcda_client(driver):
                 else:
                     server_handles, errors = self.write_group.OPCItems.AddItems(1, [0,var_id], [0,self.handle_num])
                 if errors[0] == 0:
-                    variables[var_id]['server_handle'] = server_handles[0]
+                    var_data['server_handle'] = server_handles[0]
                     if var_data['operation'] == VariableOperation.READ:
-                        variables[var_id]['value'] = None # Force first update
+                        var_data['value'] = None # Force first update
                     else:
-                        variables[var_id]['value'] = self.defaultVariableValue(variables[var_id]['datatype'], variables[var_id]['size'])
-                    self.variables[var_id] = variables[var_id]
+                        var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                    self.variables[var_id] = var_data
                 else:
                     self.sendDebugVarInfo((f"Variable not found: {var_id}!", var_id))
             except Exception as e:
