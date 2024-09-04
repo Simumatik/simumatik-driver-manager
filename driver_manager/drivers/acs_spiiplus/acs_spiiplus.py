@@ -102,6 +102,7 @@ class acs_spiiplus(driver):
         """ Disconnect driver.
         """
         if self._connection:
+            self._connection.CloseComm()
             self._connection = None
 
     def addVariables(self, variables: dict):
