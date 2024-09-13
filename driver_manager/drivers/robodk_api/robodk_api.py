@@ -29,8 +29,16 @@ class robodk_api(driver):
     The driver will always provide access to the robot axis through the variable called "Axis" (float[6]).
     Optional variable definitions are used to access Station Parameters in RobotDK to be read or written by the driver.
 
+    Parameters:
+    
     controller: str
         Robot name in RoboDK. Default = '', will take the first that founds.
+
+    ip: str
+        IP address of the PC running the RoboDK simulation. Default = 'localhost'
+    
+    port: int
+        Port looking for the RoboDK API connection (Tools-Options-Other-RoboDK API). Default = None
     '''
 
     def __init__(self, name: str, pipe: multiprocessing.Pipe = None, params:dict = None):
@@ -43,6 +51,8 @@ class robodk_api(driver):
 
         # Parameters
         self.controller = ''
+        self.ip = 'localhost'
+        self.port = None
 
 
     def connect(self) -> bool:
@@ -52,7 +62,7 @@ class robodk_api(driver):
         """
         try:
             #assert ROBODK_API_FOUND, "RoboDK API is not available."
-            self._connection = Robolink()
+            self._connection = Robolink(robodk_ip=self.ip, port=self.port)
             if self._connection:
                 self.robot = self._connection.Item(name=self.controller, itemtype=ITEM_TYPE_ROBOT)
                 if self.robot:

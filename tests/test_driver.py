@@ -31,4 +31,4 @@ if __name__ == '__main__':
     for driver_name in test_drivers:
         if driver_name in setup_data:
             my_setup_data.update({driver_name:setup_data[driver_name]})
-    Test_Driver(setup_data=my_setup_data, run_time=10, log_level=logging.INFO, sleep_time=1e-2, status_file_path=STATUS_FILE_PATH)
+    Test_Driver(setup_data=my_setup_data, run_time=100, log_level=logging.INFO, sleep_time=1e-2, status_file_path=STATUS_FILE_PATH)

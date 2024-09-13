@@ -431,7 +431,8 @@ setup_data.update({
         "DRIVER": "robodk_driver", 
         "SETUP": {
             "parameters": {
-                "controller":"", 
+                "ip":"localhost",
+                "controller":"UR3", 
                 "rpi":10,
             },
             "variables": {
