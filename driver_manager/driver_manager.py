@@ -6,7 +6,7 @@ import enum
 
 from driver_manager.drivers import *
 
-VERSION = "1.1.2"
+VERSION = "1.1.3"
 
 def RunDriverManager(pipe:multiprocessing.Pipe, use_processes:bool=False, log_level:int=logging.ERROR, status_file_path:str='') -> None:
     _object = DriverManager(pipe, use_processes, log_level, status_file_path)
@@ -161,8 +161,8 @@ class DriverManager():
                 (command, data) = self._pipe.recv()
                 if command == DriverMgrCommands.CLEAN:
                     self._logger.debug("Driver Manager: Clean request received")
-                    self.cleanDrivers()
                     self._pipe.send((DriverMgrCommands.CLEAN, "SUCCESS"))
+                    self.cleanDrivers()
                     self._running = False
                     break
                 elif command == DriverMgrCommands.SETUP_DRIVERS:
@@ -243,18 +243,19 @@ class DriverManager():
                 self._pipe.send((DriverMgrCommands.UPDATES, updates))
             
             # WRITE STATUS FILE
-            now_sec = int(time.perf_counter()) - self._start_time
-            if now_sec - self._last_status_record >= 1:
-                self._last_status_record = now_sec
-                self._pipe.send((
-                    DriverMgrCommands.STATS, 
-                    {
-                        "DRIVER_COUNT":len(self._drivers), 
-                        "VARIABLE_COUNT":len(self._handles),
-                    }
-                ))
-                if self._status_file_path:
-                    self.saveStatus(now_sec)            
+            if self._running:
+                now_sec = int(time.perf_counter()) - self._start_time
+                if now_sec - self._last_status_record >= 1:
+                    self._last_status_record = now_sec
+                    self._pipe.send((
+                        DriverMgrCommands.STATS, 
+                        {
+                            "DRIVER_COUNT":len(self._drivers), 
+                            "VARIABLE_COUNT":len(self._handles),
+                        }
+                    ))
+                    if self._status_file_path:
+                        self.saveStatus(now_sec)            
             
             # SLEEP IF NO ACTIVITY
             if can_sleep:
