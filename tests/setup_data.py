@@ -175,6 +175,25 @@ setup_data.update({
     }
 })
 
+# igus_irc
+setup_data.update({
+    "igus_irc": {
+        "DRIVER": "igus_irc", 
+        "SETUP": {
+            "parameters": {
+                "ip":"127.0.0.1",
+            },
+            "variables": {
+                "DOut21":{"datatype": VariableDatatype.BOOL, "size": 1, "operation": VariableOperation.READ},
+                "GSig1":{"datatype": VariableDatatype.BOOL, "size": 1, "operation": VariableOperation.READ},
+                "GSig2":{"datatype": VariableDatatype.BOOL, "size": 1, "operation": VariableOperation.WRITE},
+                "DIn23":{"datatype": VariableDatatype.BOOL, "size": 1, "operation": VariableOperation.WRITE},
+                "Axis": {"datatype": VariableDatatype.FLOAT, "size": 12, "operation": VariableOperation.READ},
+            }
+        }
+    }
+})
+
 # kuka_varproxy
 setup_data.update({
     "kuka_varproxy": {

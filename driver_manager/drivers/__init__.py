@@ -7,6 +7,7 @@ from .cprog_cri.cprog_cri import cprog_cri
 from .development.development import development
 from .enip_generic_device.enip_generic_device import enip_generic_device
 from .hokuyo_uam.hokuyo_uam import hokuyo_uam
+from .igus_irc.igus_irc import igus_irc
 from .kuka_varproxy.kuka_varproxy import kuka_varproxy
 from .micro800_http.micro800_http import micro800_http
 from .modbustcp_master.modbustcp_master import modbustcp_master
@@ -30,6 +31,7 @@ registered_drivers = {
   "development": (development,"1"),
   "enip_generic_device": (enip_generic_device,"1"),
   "hokuyo_uam": (hokuyo_uam,"1"),
+  "igus_irc": (igus_irc, "1"),
   "kuka_varproxy": (kuka_varproxy, "1"),
   "micro800_http": (micro800_http, "1"),
   "modbustcp_master": (modbustcp_master,"1"),
