@@ -19,7 +19,7 @@ import os
 import multiprocessing
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from cri_lib import CRIController
+from .cri_lib import CRIController
 from ..driver import driver, VariableQuality, VariableOperation
 
 class igus_irc(driver):

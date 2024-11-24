@@ -254,7 +254,7 @@ class driver():
         try:
             if param_data:
                 self.__dict__.update(param_data)
-                return self.connect()
+            return self.connect()
                 
         except Exception as e:
             self.sendDebugInfo('Exception during setup: '+str(e))
