@@ -24,21 +24,18 @@ from ..driver import driver, VariableQuality, VariableOperation
 
 class igus_irc(driver):
     '''
-    This driver uses the RoboDK API to connect to a robot controller. It is based on the Robodk API (https://robodk.com/offline-programming).
+    This driver uses the Igus CRI-Python API to communicate with the Igus robot simulator (https://github.com/CommonplaceRobotics/CRI-Python-Lib).
     
     The driver will always provide access to the robot axis through the variable called "Axis" (float[6]).
-    Optional variable definitions are used to access Station Parameters in RobotDK to be read or written by the driver.
+    Optional variable definitions are used to access digital inputs and outputs as well as global signals.
 
     Parameters:
-    
-    controller: str
-        Robot name in RoboDK. Default = '', will take the first that founds.
 
     ip: str
-        IP address of the PC running the RoboDK simulation. Default = 'localhost'
+        IP address of the PC running the RoboDK simulation. Default = ' '
     
     port: int
-        Port looking for the RoboDK API connection (Tools-Options-Other-RoboDK API). Default = None
+        Port looking for the connection. Default = 3921
     '''
 
     def __init__(self, name: str, pipe: multiprocessing.Pipe = None, params:dict = None):
@@ -50,7 +47,6 @@ class igus_irc(driver):
         driver.__init__(self, name, pipe, params)
 
         # Parameters
-        self.controller = ''
         self.ip = '127.0.0.1'
         self.port = 3921
 
@@ -61,7 +57,6 @@ class igus_irc(driver):
         : returns: True if connection established False if not
         """
         try:
-            #assert ROBODK_API_FOUND, "RoboDK API is not available."
             self._connection = CRIController()
             if self._connection.connect(self.ip, self.port):
                 return True
