@@ -53,7 +53,7 @@ class opcua_client(driver):
         driver.__init__(self, name, pipe, params)
 
         # Parameters
-        self.url = 'opc.tcp://localhost:4840'
+        self.url = 'opc.tcp://localhost:4840' # opc.tcp://<username>:<password>@localhost:4840
 
 
     def connect(self) -> bool:
