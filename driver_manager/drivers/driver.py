@@ -123,7 +123,7 @@ class driver():
 
                         # Action RESET
                         elif action == DriverActions.RESET:
-                            if self.status == DriverStatus.ERROR: 
+                            if self.status == DriverStatus.ERROR:
                                 if self._cleanup():
                                     self.changeStatus(DriverStatus.STANDBY)
                                 else:
@@ -134,13 +134,13 @@ class driver():
                         # Action ADD VARIABLES
                         elif action == DriverActions.ADD_VARIABLES:
                             self.raw_variables_def.update(data)
-                            if self.status == DriverStatus.RUNNING: 
+                            if self.status == DriverStatus.RUNNING:
                                 if not self._addVariables(data):
                                     self.sendDebugInfo('ADD_VARIABLES action failed!')
 
                         # Action UPDATE
                         elif action == DriverActions.UPDATE:
-                            if self.status == DriverStatus.RUNNING: 
+                            if self.status == DriverStatus.RUNNING:
                                 if isinstance(data, dict):
                                     for var_name, var_value in data.items():
                                         if var_name in self.variables:

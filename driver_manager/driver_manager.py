@@ -331,7 +331,6 @@ class DriverManager():
         TODO:
         """
         res = {}
-        status_updates = {}
         for driver_handle, driver_data in drivers_setup_data.items():
             driver_struct = self.find_compatible_driver(driver_data)
             if driver_struct is not None:
@@ -342,7 +341,7 @@ class DriverManager():
             else:
                 driver_struct = self.start_driver(driver_handle, driver_data)
                 if driver_struct is not None:
-                    self._drivers[driver_struct.name] =driver_struct
+                    self._drivers[driver_struct.name] = driver_struct
                     self.log("info", f"Driver Manager: New Driver started {driver_struct.name} -> {driver_struct.class_name}")
                     res[driver_handle] = "SUCCESS"
                 else:
@@ -350,7 +349,7 @@ class DriverManager():
             if driver_struct is not None:
                 setup_data = driver_data.get("SETUP", {})
                 self._handles.update(driver_struct.add_driver_variables(setup_data.get("variables", {})))
-        return res, status_updates
+        return res
     
     def clean_drivers(self)->True:
         """
