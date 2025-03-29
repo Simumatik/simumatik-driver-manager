@@ -86,6 +86,8 @@ class driver():
         self.params = params
         self.handles = []
         self._connection = None
+        self._transmit_read_counter = 0
+        self._last_transmit_info = 0
         self.last_read = time.perf_counter() # last read package sent
         self.last_write = time.perf_counter() # last write package sent
         self.last_forced_write = time.perf_counter() # last read package sent
@@ -337,6 +339,7 @@ class driver():
                         pending_reads.append(var_id)
 
                 if pending_reads:
+                    self._transmit_read_counter += 1
                     updates = {}
                     for (var_id, value, quality) in self.readVariables(pending_reads):
                         if (quality == VariableQuality.GOOD):
@@ -350,6 +353,15 @@ class driver():
                     if updates:
                         self.sendUpdate(updates)
 
+            # Transmit stats
+            if self._last_transmit_info != int(now):
+                self._last_transmit_info = int(now)
+                if self._transmit_read_counter>0:
+                    latency = round(1000/self._transmit_read_counter, 2)
+                else:
+                    latency = 0
+                self.sendDebugInfo(f'Latency: {latency} msec')
+                self._transmit_read_counter = 0
             return True
         
         except Exception as e:

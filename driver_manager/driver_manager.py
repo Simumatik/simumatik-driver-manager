@@ -35,6 +35,8 @@ class DriverStructure():
         self.variables = {}
         self.status = ""
         self.info = ""
+        self.info_log = []
+        self.latency = ""
         self.pipe = pipe
         self.process = driver_process
         self.updates = {}
@@ -150,7 +152,11 @@ class DriverManager():
                 f.write('-'*N+'\n')
                 for driver_struct in self._drivers.values():
                     f.write(f' {driver_struct.name}:\n') 
-                    f.write(f'   - Type = {driver_struct.class_name}, Status = {driver_struct.status.value}, Info = {driver_struct.info}\n')
+                    f.write(f'   - Type = {driver_struct.class_name}, Status = {driver_struct.status.value}\n')
+                    f.write(f'   - {driver_struct.latency}\n')
+                    f.write(f'   - Info:\n')
+                    for info_line in driver_struct.info_log:
+                        f.write(f'     * {info_line}\n')
                     f.write(f'   - Parameters = {driver_struct.parameters}\n')
                     f.write(f'   - Handles = {driver_struct.handlers}, Variable count = {len(driver_struct.variables)}\n')
                     f.write(f'   - Variables:\n')
@@ -226,7 +232,11 @@ class DriverManager():
                         for handle in driver_struct.handlers:
                             self._status_updates.update({handle: data})       
                 elif command == DriverActions.INFO:
-                    if driver_struct.info != data:
+                    if "Latency" in data:
+                        driver_struct.latency = data
+                    else:
+                        driver_struct.info_log.append(data)
+                        if len(driver_struct.info_log) > 5: driver_struct.info_log = driver_struct.info_log[-5:]
                         driver_struct.info = data
                         for handle in driver_struct.handlers:
                             self._info_updates.update({handle: data})       
