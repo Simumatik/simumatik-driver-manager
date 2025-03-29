@@ -1,6 +1,7 @@
 import time
 import multiprocessing
 import threading
+import copy
 import enum 
 
 from driver_manager.drivers import *
@@ -188,6 +189,7 @@ class DriverManager():
         elif command == DriverMgrCommands.SETUP_DRIVERS:
             self.log("info", "Driver Manager: Setup Drivers request received")
             ret_data, status_updates = self.setup_drivers(data)
+            self._status_updates.update(status_updates)
         elif command == DriverMgrCommands.UPDATES:
             for var_handle, var_value in data.items():
                 (var_id, driver_name) = self._handles.get(var_handle, (None, None))
@@ -271,7 +273,13 @@ class DriverManager():
 
         :returns: status_updates, info_updates, var_info_updates, value_updates, stats_updates (every second)
         """
-        return (self._status_updates, self._info_updates, self._var_info_updates, self._value_updates, self._stats_updates)
+        res = (copy.copy(self._status_updates), copy.copy(self._info_updates), copy.copy(self._var_info_updates), copy.copy(self._value_updates), copy.copy(self._stats_updates))
+        self._status_updates = {}
+        self._info_updates = {}
+        self._var_info_updates = {}
+        self._value_updates = {}
+        self._stats_updates = {}
+        return res
 
     def run_forever(self, pipe) -> None:
         """
@@ -330,6 +338,7 @@ class DriverManager():
                 driver_struct.add_handle(driver_handle)
                 self.log("info", f"Driver Manager: Driver {driver_handle} using compatible driver {driver_struct.name}")
                 res[driver_handle] = "SUCCESS"
+                status_updates.update({driver_handle:driver_struct.status})
             else:
                 driver_struct = self.start_driver(driver_handle, driver_data)
                 if driver_struct is not None:
