@@ -8,8 +8,8 @@ from driver_manager.drivers import *
 VERSION = "2.0.0"
 
 def RunDriverManager(pipe:multiprocessing.Pipe, use_processes:bool=False, status_file_path:str='') -> None:
-    _object = DriverManager(pipe, use_processes, status_file_path)
-    _object.run_forever()
+    _object = DriverManager(use_processes, status_file_path)
+    _object.run_forever(pipe)
     
 def RunDriver(driver_object:any, name:str, pipe:multiprocessing.Pipe, params:dict) -> None:
     _object = driver_object(name, pipe, params)
@@ -99,7 +99,7 @@ class VariableStructure():
 
 class DriverManager():
     
-    def __init__(self, pipe, use_processes:bool=False, status_file_path:str='') -> None:
+    def __init__(self, use_processes:bool=False, status_file_path:str='') -> None:
         """
 
         :param use_processes: Allows to use processes instead of threads.
@@ -109,7 +109,7 @@ class DriverManager():
 
         
         """      
-        self._pipe = pipe
+        self._logs = []
         self._use_processes = use_processes
         self._status_file_path = status_file_path
         self._drivers = {} # Dict to store drivers: {<driver_name>:<driver_struct>}
@@ -129,7 +129,6 @@ class DriverManager():
         self._start_time = int(time.perf_counter())
         self._last_status_record = 0
         self._save_status_time = 0
-        self._logs = []
     
     def log(self, level:str="", message:str=""):
         """
@@ -189,8 +188,6 @@ class DriverManager():
         elif command == DriverMgrCommands.SETUP_DRIVERS:
             self.log("info", "Driver Manager: Setup Drivers request received")
             ret_data, status_updates = self.setup_drivers(data)
-            if status_updates:
-                self._status_updates.update(status_updates)
         elif command == DriverMgrCommands.UPDATES:
             for var_handle, var_value in data.items():
                 (var_id, driver_name) = self._handles.get(var_handle, (None, None))
@@ -201,7 +198,7 @@ class DriverManager():
                             self._drivers[driver_name].variables[var_id].write_count += 1
                             self._drivers[driver_name].variables[var_id].value = var_value 
                 else:
-                    self.log("error", f"Driver Manager: Variable handle not found! {var_handle}")
+                    self.log("error", f"Driver Manager: Variable handle not found! {var_handle} value = {var_value}")
             for driver_struct in self._drivers.values():
                 if driver_struct.updates:
                     driver_struct.pipe.send((DriverActions.UPDATE, driver_struct.updates))
@@ -274,9 +271,9 @@ class DriverManager():
 
         :returns: status_updates, info_updates, var_info_updates, value_updates, stats_updates (every second)
         """
-        return (self._stats_updates, self._info_updates, self._var_info_updates, self._value_updates, self._stats_updates)
+        return (self._status_updates, self._info_updates, self._var_info_updates, self._value_updates, self._stats_updates)
 
-    def run_forever(self) -> None:
+    def run_forever(self, pipe) -> None:
         """
         TODO
         """
@@ -285,12 +282,12 @@ class DriverManager():
             can_sleep = True
             # Send commands
             counter = 0
-            while self._pipe.poll():
+            while pipe.poll():
                 can_sleep = False
-                (command, data) = self._pipe.recv()
+                (command, data) = pipe.recv()
                 res_data = self.send_command(command, data)
                 if res_data is not None:
-                    self._pipe.send((command, res_data))
+                    pipe.send((command, res_data))
                 counter += 1
                 if counter>=10: 
                     break
@@ -300,19 +297,19 @@ class DriverManager():
                 if self.run_once():
                     can_sleep = False
                     if self._status_updates:
-                        self._pipe.send((DriverMgrCommands.STATUS, self._status_updates))
+                        pipe.send((DriverMgrCommands.STATUS, self._status_updates))
                         self._status_updates = {}
                     if self._info_updates:
-                        self._pipe.send((DriverMgrCommands.INFO, self._info_updates))
+                        pipe.send((DriverMgrCommands.INFO, self._info_updates))
                         self._info_updates = {}
                     if self._var_info_updates:
-                        self._pipe.send((DriverMgrCommands.VAR_INFO, self._var_info_updates))
+                        pipe.send((DriverMgrCommands.VAR_INFO, self._var_info_updates))
                         self._var_info_updates = {}
                     if self._value_updates:
-                        self._pipe.send((DriverMgrCommands.UPDATES, self._value_updates))
+                        pipe.send((DriverMgrCommands.UPDATES, self._value_updates))
                         self._value_updates = {}
                     if self._stats_updates:
-                        self._pipe.send((DriverMgrCommands.STATS, self._stats_updates))
+                        pipe.send((DriverMgrCommands.STATS, self._stats_updates))
                         self._stats_updates = {}
 
             # Sleep if nothing happens to release CPU usage
@@ -333,8 +330,6 @@ class DriverManager():
                 driver_struct.add_handle(driver_handle)
                 self.log("info", f"Driver Manager: Driver {driver_handle} using compatible driver {driver_struct.name}")
                 res[driver_handle] = "SUCCESS"
-                if driver_struct.status:
-                    status_updates[driver_handle] = driver_struct.status
             else:
                 driver_struct = self.start_driver(driver_handle, driver_data)
                 if driver_struct is not None:
@@ -345,10 +340,10 @@ class DriverManager():
                     res[driver_handle] = "FAILED"
             if driver_struct is not None:
                 setup_data = driver_data.get("SETUP", {})
-                self._handles.update(driver_struct.addDriverVariables(setup_data.get("variables", {})))
+                self._handles.update(driver_struct.add_driver_variables(setup_data.get("variables", {})))
         return res, status_updates
     
-    def clean_drivers(self):
+    def clean_drivers(self)->True:
         """
         TODO:
         """
