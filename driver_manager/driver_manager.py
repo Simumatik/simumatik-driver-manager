@@ -188,8 +188,7 @@ class DriverManager():
             self._running = False
         elif command == DriverMgrCommands.SETUP_DRIVERS:
             self.log("info", "Driver Manager: Setup Drivers request received")
-            ret_data, status_updates = self.setup_drivers(data)
-            self._status_updates.update(status_updates)
+            ret_data = self.setup_drivers(data)
         elif command == DriverMgrCommands.UPDATES:
             for var_handle, var_value in data.items():
                 (var_id, driver_name) = self._handles.get(var_handle, (None, None))
@@ -326,7 +325,7 @@ class DriverManager():
                 
         self.log("info", "Driver Manager: Closed")
     
-    def setup_drivers(self, drivers_setup_data:dict)->tuple:
+    def setup_drivers(self, drivers_setup_data:dict)->dict:
         """
         TODO:
         """
@@ -337,7 +336,7 @@ class DriverManager():
                 driver_struct.add_handle(driver_handle)
                 self.log("info", f"Driver Manager: Driver {driver_handle} using compatible driver {driver_struct.name}")
                 res[driver_handle] = "SUCCESS"
-                status_updates.update({driver_handle:driver_struct.status})
+                self._status_updates.update({driver_handle:driver_struct.status})
             else:
                 driver_struct = self.start_driver(driver_handle, driver_data)
                 if driver_struct is not None:
