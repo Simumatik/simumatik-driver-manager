@@ -100,7 +100,6 @@ class plcsim_advanced(driver):
                     var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             except Exception as e:
-                print(e)
                 self.sendDebugVarInfo(('SETUP: Bad variable definition: {}'.format(var_id), var_id))
     
     def readVariables(self, variables: list) -> list:

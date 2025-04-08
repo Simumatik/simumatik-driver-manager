@@ -136,10 +136,11 @@ class driver():
                         # Action ADD VARIABLES
                         elif action == DriverActions.ADD_VARIABLES:
                             self.raw_variables_def.update(data)
+                            self.changeStatus(self.status)
                             if self.status == DriverStatus.RUNNING:
                                 if not self._addVariables(data):
                                     self.sendDebugInfo('ADD_VARIABLES action failed!')
-
+                                
                         # Action UPDATE
                         elif action == DriverActions.UPDATE:
                             if self.status == DriverStatus.RUNNING:

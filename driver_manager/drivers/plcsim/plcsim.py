@@ -120,7 +120,6 @@ class plcsim(driver):
                 fdr = S7OexchangeBlock(opcode=12, application_block_opcode=self.app_opcode, application_block_subsystem=self.app_subs)
                 self.send_block(fdr)
             self._connection.SCP_close(self.connectionHandle)
-            print("Disconnected")
 
 
     def addVariables(self, variables: dict):

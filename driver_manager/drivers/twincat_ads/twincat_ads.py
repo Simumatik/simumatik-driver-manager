@@ -72,7 +72,7 @@ class twincat_ads(driver):
                     var_data['value'] = None # Force first update
                 else:
                     var_data['value'] = value
-                self.variables[var_id] = var_data 
+                self.variables[var_id] = var_data
             except Exception as e:
                 self.sendDebugInfo(f'SETUP: {e} \"{var_id}\"')
 

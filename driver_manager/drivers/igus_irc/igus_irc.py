@@ -148,7 +148,6 @@ class igus_irc(driver):
             try:
                 if var_id[:3] == "DIn":
                     number = int(var_id[3:])-1
-                    print("write", var_id, new_value)
                     self._connection.set_din(number,new_value)
                     res.append((var_id, new_value, VariableQuality.GOOD))
                 elif var_id[:4] == "GSig":

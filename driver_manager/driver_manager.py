@@ -230,7 +230,7 @@ class DriverManager():
                     if driver_struct.status != data:
                         driver_struct.status = data
                         for handle in driver_struct.handlers:
-                            self._status_updates.update({handle: data})       
+                            self._status_updates.update({handle: data})
                 elif command == DriverActions.INFO:
                     if "Latency" in data:
                         driver_struct.latency = data
