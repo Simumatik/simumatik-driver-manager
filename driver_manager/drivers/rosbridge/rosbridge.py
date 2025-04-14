@@ -169,7 +169,6 @@ class rosbridge(driver):
 
                 res.append((var_id, new_value, VariableQuality.GOOD))
             except Exception as e:
-                print(e)
                 res.append((var_id, new_value, VariableQuality.BAD))
                      
         return res
