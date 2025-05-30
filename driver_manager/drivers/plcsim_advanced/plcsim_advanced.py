@@ -34,7 +34,7 @@ try:
         else: # 32-Bit OS
             clr.FindAssembly("Siemens.Simatic.Simulation.Runtime.Api.x86")
             clr.AddReference("Siemens.Simatic.Simulation.Runtime.Api.x86")
-        from Siemens.Simatic.Simulation.Runtime import SimulationRuntimeManager, SDataValue, SDataValueByName, EPrimitiveDataType
+        from Siemens.Simatic.Simulation.Runtime import SimulationRuntimeManager, SDataValue, SDataValueByName, EPrimitiveDataType, ETagListDetails
 except:
     pass
 
@@ -86,7 +86,7 @@ class plcsim_advanced(driver):
         : param variables: Variables to add in a dict following the setup format. (See documentation) 
         
         """
-        self._connection.UpdateTagList()
+        self._connection.UpdateTagList(ETagListDetails.IOMCTDB, False) # Update all IO, M, CT and DB. isHMIVisibleOnly set to False.
         for var_id in list(variables.keys()):
             try:
                 var_data = dict(variables[var_id])
