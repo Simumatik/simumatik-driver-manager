@@ -17,7 +17,7 @@
 import multiprocessing
 import socket
 import struct
-import enum 
+import enum
 import time
 
 from .enip import EnipPacket, EnipIOpacket, RegisterSessionData, SendRRData, CMitem, CM_SocketAddressInfo
