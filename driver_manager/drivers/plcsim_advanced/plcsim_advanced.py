@@ -69,6 +69,7 @@ class plcsim_advanced(driver):
                 for instance in SimulationRuntimeManager.RegisteredInstanceInfo:
                     if instance.Name == self.instanceName:
                         self._connection = SimulationRuntimeManager.CreateInterface(self.instanceName)
+                        self._connection.UpdateTagList(ETagListDetails.IO) # This is to make sure the connection is valid
                         return True
                 self.sendDebugInfo(f"No PLC Sim Advanced instance with name {self.instanceName} found")
             else: 
