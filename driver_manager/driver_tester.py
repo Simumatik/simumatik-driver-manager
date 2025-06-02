@@ -21,7 +21,7 @@ class DriverTester():
         self._logger.setLevel(log_level)
         
         self._pipe, pipe = multiprocessing.Pipe()
-        self._driver_manager = threading.Thread(target=RunDriverManager, args=(pipe, use_processes, log_level, status_file_path,), daemon=True)
+        self._driver_manager = threading.Thread(target=RunDriverManager, args=(pipe, use_processes, status_file_path,), daemon=True)
         self._logger.debug("Driver Tester: Running using threads")
         self._driver_manager.start()
         
