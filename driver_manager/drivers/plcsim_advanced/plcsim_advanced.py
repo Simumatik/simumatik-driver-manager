@@ -18,7 +18,7 @@ import sys
 import os
 import multiprocessing
 
-from ..driver import driver, VariableQuality, VariableOperation
+from ..driver import driver, VariableQuality, VariableOperation, DriverStatus
 
 try:
     if os.name == 'nt':# Just try on windows
@@ -144,6 +144,8 @@ class plcsim_advanced(driver):
                     value = signal.DataValue.Char
                 res.append((var_id, value, VariableQuality.GOOD))  
         except Exception as e:
+            if "NotUpToDate" in e.Message:
+                self.changeStatus(DriverStatus.ERROR)
             res = []
             for var_id in variables:
                 res.append((var_id, None, VariableQuality.BAD))
@@ -193,6 +195,8 @@ class plcsim_advanced(driver):
         try:
             self._connection.WriteSignals(signals)
         except Exception as e:
+            if "NotUpToDate" in e.Message:
+                self.changeStatus(DriverStatus.ERROR)
             res = []
             for var_id in variables:
                 res.append((var_id, None, VariableQuality.BAD))

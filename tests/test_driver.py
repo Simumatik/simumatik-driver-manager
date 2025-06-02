@@ -22,7 +22,7 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from driver_manager.driver_tester import Test_Driver
 from setup_data import setup_data
 
-test_drivers = ['igus_irc'] # JUST MODIFY THIS LIST TO TEST ONE OR MORE DRIVERS
+test_drivers = ['plcsim_advanced'] # JUST MODIFY THIS LIST TO TEST ONE OR MORE DRIVERS
 
 STATUS_FILE_PATH = path.dirname(path.abspath(__file__))+'/Driver_Manager_status.txt'        
 
