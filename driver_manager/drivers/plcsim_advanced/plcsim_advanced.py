@@ -43,6 +43,7 @@ class plcsim_advanced(driver):
     Driver that can be used together with a local PLCSim Advanced Instance, using the Simulation Runtime API.
     Parameters:
     instanceName : The name of the PLC Sim Advanced Instance
+    HMIVisibleTagsOnly (bool): Browse HMI visible tags only. Default True
     '''
 
     def __init__(self, name: str, pipe: multiprocessing.Pipe = None, params:dict = None):
@@ -54,6 +55,7 @@ class plcsim_advanced(driver):
         driver.__init__(self, name, pipe, params)
         # Parameters
         self.instanceName = "s7-1500"
+        self.HMIVisibleTagsOnly = True
         
     def connect(self) -> bool:
         """ Connect driver.
@@ -86,7 +88,7 @@ class plcsim_advanced(driver):
         : param variables: Variables to add in a dict following the setup format. (See documentation) 
         
         """
-        self._connection.UpdateTagList(ETagListDetails.IOMCTDB, False) # Update all IO, M, CT and DB. isHMIVisibleOnly set to False.
+        self._connection.UpdateTagList(ETagListDetails.IOMCTDB, self.HMIVisibleTagsOnly) # Update all IO, M, CT and DB.
         for var_id in list(variables.keys()):
             try:
                 var_data = dict(variables[var_id])
@@ -158,7 +160,7 @@ class plcsim_advanced(driver):
                 sdatavalue = SDataValue()
                 sdatavalue.Type = self.variables[var_id]['PrimitiveDataType']
                 if sdatavalue.Type == EPrimitiveDataType.Bool:
-                    sdatavalue.Bool = value
+                    sdatavalue.Bool = bool(value)
                 elif sdatavalue.Type == EPrimitiveDataType.Int8:
                     sdatavalue.Int8 = value
                 elif sdatavalue.Type == EPrimitiveDataType.Int16:
