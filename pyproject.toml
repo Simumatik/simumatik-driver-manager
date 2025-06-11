@@ -25,7 +25,6 @@ dependencies = [
     "fins >= 1.0.3",
     "opcua >= 0.98.13",
     "paho-mqtt >= 2.1.0",
-    "pyads >= 3.4.2",
     "pycomm3 >= 1.2.14",
     "pyModbusTCP >= 0.2.2",
     "pythonnet >= 3.0.3",
