@@ -29,7 +29,6 @@ dependencies = [
     "pycomm3 >= 1.2.14",
     "pyModbusTCP >= 0.2.2",
     "pythonnet >= 3.0.3",
-    "pywin32 >= 306",
     "roslibpy >= 1.7.0",
     "numpy"
 ]
