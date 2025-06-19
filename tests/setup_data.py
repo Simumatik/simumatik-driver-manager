@@ -473,6 +473,7 @@ setup_data.update({
             },
             "variables": {
                 "Axis":{"datatype": VariableDatatype.FLOAT, "size": 6, "operation": VariableOperation.READ},
+                "ExtAxis":{"datatype": VariableDatatype.FLOAT, "size": 6, "operation": VariableOperation.READ},
                 "inputs":{"datatype": VariableDatatype.BYTE, "size": 1, "operation": VariableOperation.WRITE},
                 "outputs":{"datatype": VariableDatatype.BYTE, "size": 1, "operation": VariableOperation.READ},
             }

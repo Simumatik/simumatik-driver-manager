@@ -64,6 +64,7 @@ class robotware(driver):
     This driver uses the RobotWare API to connect to a robot controller.
     
     The driver will always provide access to the robot axis through the variable called "Axis" (float[6]).
+    It can even provide access to external axis through "ExtAxis" variable (float[6]).
     Optional variable definitions are used to access Input and Output signals to be read or written by the driver.
 
     controller: str
@@ -141,7 +142,7 @@ class robotware(driver):
         # Check variable elements
         for var_id, var_data in variables.items():
             try:
-                if var_id == 'Axis':
+                if var_id in ['Axis', 'ExtAxis']:
                     var_data['value'] = [None for i in range(var_data['size'])]
                     self.variables[var_id] = var_data
                     continue
@@ -173,11 +174,15 @@ class robotware(driver):
         res = []
         for var_id in variables:
             try:
-                if var_id == 'Axis':
+                if var_id in ['Axis', 'ExtAxis']:
                     mecunit = self._connection.MotionSystem.ActiveMechanicalUnit
-                    # robot axis rotations [Rax_1, Rax_2, Rax_3, Rax_4, Rax_5, Rax_6]
                     pos = mecunit.GetPosition()
-                    new_value = [pos.RobAx.Rax_1, pos.RobAx.Rax_2, pos.RobAx.Rax_3, pos.RobAx.Rax_4, pos.RobAx.Rax_5, pos.RobAx.Rax_6]
+                    if var_id == 'Axis':
+                        # robot axis rotations [Rax_1, Rax_2, Rax_3, Rax_4, Rax_5, Rax_6]
+                        new_value = [pos.RobAx.Rax_1, pos.RobAx.Rax_2, pos.RobAx.Rax_3, pos.RobAx.Rax_4, pos.RobAx.Rax_5, pos.RobAx.Rax_6]
+                    else:
+                        # robot external axis rotations [Eax_a, Eax_b, Eax_c, Eax_d, Eax_e, Eax_f]
+                        new_value = [pos.ExtAx.Eax_a, pos.ExtAx.Eax_b, pos.ExtAx.Eax_c, pos.ExtAx.Eax_d, pos.ExtAx.Eax_e, pos.ExtAx.Eax_f]
                     # Round
                     new_value = [round(x,3) for x in new_value]
                     res.append((var_id, new_value, VariableQuality.GOOD))
