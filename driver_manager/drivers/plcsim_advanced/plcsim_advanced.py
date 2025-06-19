@@ -18,7 +18,7 @@ import sys
 import os
 import multiprocessing
 
-from ..driver import driver, VariableQuality, VariableOperation, DriverStatus
+from ..driver import driver, VariableQuality, VariableOperation, DriverStatus,VariableDatatype
 
 try:
     if os.name == 'nt':# Just try on windows
@@ -93,14 +93,17 @@ class plcsim_advanced(driver):
         for var_id in list(variables.keys()):
             try:
                 var_data = dict(variables[var_id])
-                var_data['SDataValueByName'] = SDataValueByName()
-                var_data['SDataValueByName'].Name = var_id
-                var_data['SDataValueByName'].DataValue = self._connection.Read(var_data['SDataValueByName'].Name)
-                var_data['PrimitiveDataType'] = var_data['SDataValueByName'].DataValue.Type
-                if var_data['operation'] == VariableOperation.READ:
-                    var_data['value'] = None # Force first update
-                else:
+                if var_data['datatype'] == VariableDatatype.STRING:
                     var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                else:
+                    var_data['SDataValueByName'] = SDataValueByName()
+                    var_data['SDataValueByName'].Name = var_id
+                    var_data['SDataValueByName'].DataValue = self._connection.Read(var_data['SDataValueByName'].Name)
+                    var_data['PrimitiveDataType'] = var_data['SDataValueByName'].DataValue.Type
+                    if var_data['operation'] == VariableOperation.READ:
+                        var_data['value'] = None # Force first update
+                    else:
+                        var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
                 self.variables[var_id] = var_data
             except Exception as e:
                 self.sendDebugVarInfo(('SETUP: Bad variable definition: {}'.format(var_id), var_id))
@@ -112,10 +115,19 @@ class plcsim_advanced(driver):
         """
         signals = []
         res = []
+        stringSignals = []
         try:
             for var_id in variables:
-                signals.append(self.variables[var_id]['SDataValueByName'])
-            signals = self._connection.ReadSignals(signals)
+                if self.variables[var_id]['datatype'] == 'str':
+                    try:
+                        value = self._connection.ReadString(var_id)
+                        res.append((var_id, value, VariableQuality.GOOD))
+                    except e as e:
+                        for var_id in variables:
+                            res.append((var_id, None, VariableQuality.BAD))
+                else:
+                    signals.append(self.variables[var_id]['SDataValueByName'])
+                    signals = self._connection.ReadSignals(signals)
             for signal in signals:
                 var_id = signal.Name
                 if signal.DataValue.Type == EPrimitiveDataType.Bool:
@@ -160,34 +172,41 @@ class plcsim_advanced(driver):
         signals = []
         for (var_id, value) in variables:
             try:
-                sdatavalue = SDataValue()
-                sdatavalue.Type = self.variables[var_id]['PrimitiveDataType']
-                if sdatavalue.Type == EPrimitiveDataType.Bool:
-                    sdatavalue.Bool = bool(value)
-                elif sdatavalue.Type == EPrimitiveDataType.Int8:
-                    sdatavalue.Int8 = value
-                elif sdatavalue.Type == EPrimitiveDataType.Int16:
-                    sdatavalue.Int16 = value
-                elif sdatavalue.Type == EPrimitiveDataType.Int32:
-                    sdatavalue.Int32 = value
-                elif sdatavalue.Type == EPrimitiveDataType.Int64:
-                    sdatavalue.Int64 = value
-                elif sdatavalue.Type == EPrimitiveDataType.UInt8:
-                    sdatavalue.UInt8 = value    
-                elif sdatavalue.Type == EPrimitiveDataType.UInt16:
-                    sdatavalue.UInt16 = value
-                elif sdatavalue.Type == EPrimitiveDataType.UInt32:
-                    sdatavalue.UInt32 = value
-                elif sdatavalue.Type == EPrimitiveDataType.UInt64:
-                    sdatavalue.UInt64 = value
-                elif sdatavalue.Type == EPrimitiveDataType.Float:
-                    sdatavalue.Float = value  
-                elif sdatavalue.Type == EPrimitiveDataType.Double:
-                    sdatavalue.Double = value    
-                elif sdatavalue.Type== EPrimitiveDataType.Char:
-                    sdatavalue.Char = value
-                self.variables[var_id]['SDataValueByName'].DataValue = sdatavalue
-                signals.append(self.variables[var_id]['SDataValueByName'])     
+                if self.variables[var_id]['datatype'] == 'str':
+                    try:
+                        value = self._connection.WriteString(var_id,value)
+                        res.append((var_id, value, VariableQuality.GOOD))
+                    except Exception as e:
+                        res.append((var_id, None, VariableQuality.BAD))
+                else:
+                    sdatavalue = SDataValue()
+                    sdatavalue.Type = self.variables[var_id]['PrimitiveDataType']
+                    if sdatavalue.Type == EPrimitiveDataType.Bool:
+                        sdatavalue.Bool = bool(value)
+                    elif sdatavalue.Type == EPrimitiveDataType.Int8:
+                        sdatavalue.Int8 = value
+                    elif sdatavalue.Type == EPrimitiveDataType.Int16:
+                        sdatavalue.Int16 = value
+                    elif sdatavalue.Type == EPrimitiveDataType.Int32:
+                        sdatavalue.Int32 = value
+                    elif sdatavalue.Type == EPrimitiveDataType.Int64:
+                        sdatavalue.Int64 = value
+                    elif sdatavalue.Type == EPrimitiveDataType.UInt8:
+                        sdatavalue.UInt8 = value    
+                    elif sdatavalue.Type == EPrimitiveDataType.UInt16:
+                        sdatavalue.UInt16 = value
+                    elif sdatavalue.Type == EPrimitiveDataType.UInt32:
+                        sdatavalue.UInt32 = value
+                    elif sdatavalue.Type == EPrimitiveDataType.UInt64:
+                        sdatavalue.UInt64 = value
+                    elif sdatavalue.Type == EPrimitiveDataType.Float:
+                        sdatavalue.Float = value  
+                    elif sdatavalue.Type == EPrimitiveDataType.Double:
+                        sdatavalue.Double = value    
+                    elif sdatavalue.Type== EPrimitiveDataType.Char:
+                        sdatavalue.Char = value
+                    self.variables[var_id]['SDataValueByName'].DataValue = sdatavalue
+                    signals.append(self.variables[var_id]['SDataValueByName'])     
             except Exception as e:
                 res.append((var_id, None, VariableQuality.BAD))
             else:

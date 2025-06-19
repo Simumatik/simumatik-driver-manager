@@ -2,6 +2,7 @@ import multiprocessing
 import threading
 import logging
 import time
+import numpy as np
 
 from driver_manager.driver_manager import RunDriverManager, DriverMgrCommands
 from driver_manager.drivers.driver import VariableOperation, VariableDatatype
@@ -128,8 +129,10 @@ def Test_Driver(setup_data:dict, run_time:int=20, log_level:int=logging.INFO, sl
     # START LOOP
     start = time.perf_counter()
     counter = 0
+    stringValues = ['hello','world']
     while (time.perf_counter()-start)<run_time:
         counter += 1
+        randomInt = np.random.randint(0,2)
         new_values = {}
         for var_handle, (datatype, size) in input_variables.items():
             if datatype in [VariableDatatype.BOOL]:
@@ -148,6 +151,8 @@ def Test_Driver(setup_data:dict, run_time:int=20, log_level:int=logging.INFO, sl
                 new_values[var_handle] = counter*3.1415
             elif datatype in [VariableDatatype.FLOAT]:
                 new_values[var_handle] = str(counter)
+            elif datatype in [VariableDatatype.STRING]:
+                new_values[var_handle] = stringValues[randomInt]
         test.writeVariables(new_values)
         test.process()
         #test.getReadUpdates()
