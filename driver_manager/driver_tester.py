@@ -129,10 +129,15 @@ def Test_Driver(setup_data:dict, run_time:int=20, log_level:int=logging.INFO, sl
     # START LOOP
     start = time.perf_counter()
     counter = 0
-    stringValues = ['hello','world']
+    stringVal = [
+        ('hello' * 51)[:np.random.randint(1,80)],
+        ('world' * 51)[:80],
+        ('hi' * 128)[:np.random.randint(1,80)],
+        ('skovde' * 43)[:np.random.randint(1,80)]
+    ]
     while (time.perf_counter()-start)<run_time:
         counter += 1
-        randomInt = np.random.randint(0,2)
+        rand = np.random.randint(0,len(stringVal))
         new_values = {}
         for var_handle, (datatype, size) in input_variables.items():
             if datatype in [VariableDatatype.BOOL]:
@@ -152,7 +157,7 @@ def Test_Driver(setup_data:dict, run_time:int=20, log_level:int=logging.INFO, sl
             elif datatype in [VariableDatatype.FLOAT]:
                 new_values[var_handle] = str(counter)
             elif datatype in [VariableDatatype.STRING]:
-                new_values[var_handle] = stringValues[randomInt]
+                new_values[var_handle] = stringVal[rand]
         test.writeVariables(new_values)
         test.process()
         #test.getReadUpdates()

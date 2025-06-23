@@ -56,6 +56,8 @@ class plcsim_advanced(driver):
         # Parameters
         self.instanceName = "s7-1500"
         self.HMIVisibleTagsOnly = True
+        # internal
+        self._EXCLUDE_STRING = True
         
     def connect(self) -> bool:
         """ Connect driver.
@@ -94,7 +96,11 @@ class plcsim_advanced(driver):
             try:
                 var_data = dict(variables[var_id])
                 if var_data['datatype'] == VariableDatatype.STRING:
-                    var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size'])
+                    self._EXCLUDE_STRING = False
+                    if var_data['operation'] == VariableOperation.READ:
+                        var_data['value'] = None # Force first update
+                    else:
+                        var_data['value'] = self.defaultVariableValue(var_data['datatype'], var_data['size']) 
                 else:
                     var_data['SDataValueByName'] = SDataValueByName()
                     var_data['SDataValueByName'].Name = var_id
@@ -116,45 +122,50 @@ class plcsim_advanced(driver):
         signals = []
         res = []
         stringSignals = []
+
         try:
             for var_id in variables:
-                if self.variables[var_id]['datatype'] == 'str':
+                if not self._EXCLUDE_STRING and self.variables[var_id]['datatype'] == 'str':
+                    stringSignals.append(var_id)
+                else:
+                    signals.append(self.variables[var_id]['SDataValueByName'])
+
+            if stringSignals:
+                for var_id in stringSignals:
                     try:
                         value = self._connection.ReadString(var_id)
                         res.append((var_id, value, VariableQuality.GOOD))
-                    except e as e:
-                        for var_id in variables:
-                            res.append((var_id, None, VariableQuality.BAD))
-                else:
-                    signals.append(self.variables[var_id]['SDataValueByName'])
-                    signals = self._connection.ReadSignals(signals)
-            for signal in signals:
-                var_id = signal.Name
-                if signal.DataValue.Type == EPrimitiveDataType.Bool:
-                    value = signal.DataValue.Bool
-                elif signal.DataValue.Type == EPrimitiveDataType.Int8:
-                    value = signal.DataValue.Int8
-                elif signal.DataValue.Type == EPrimitiveDataType.Int16:
-                    value = signal.DataValue.Int16
-                elif signal.DataValue.Type == EPrimitiveDataType.Int32:
-                    value = signal.DataValue.Int32
-                elif signal.DataValue.Type == EPrimitiveDataType.Int64:
-                    value = signal.DataValue.Int64
-                elif signal.DataValue.Type == EPrimitiveDataType.UInt8:
-                    value = signal.DataValue.UInt8
-                elif signal.DataValue.Type == EPrimitiveDataType.UInt16:
-                    value = signal.DataValue.UInt16
-                elif signal.DataValue.Type == EPrimitiveDataType.UInt32:
-                    value = signal.DataValue.UInt32
-                elif signal.DataValue.Type == EPrimitiveDataType.UInt64:
-                    value = signal.DataValue.UInt64
-                elif signal.DataValue.Type == EPrimitiveDataType.Float:
-                    value = signal.DataValue.Float
-                elif signal.DataValue.Type == EPrimitiveDataType.Double:
-                    value = signal.DataValue.Double
-                elif signal.DataValue.Type == EPrimitiveDataType.Char:
-                    value = signal.DataValue.Char
-                res.append((var_id, value, VariableQuality.GOOD))  
+                    except Exception as e:
+                        res.append((var_id, None, VariableQuality.BAD))
+            if signals:
+                signals = self._connection.ReadSignals(signals)
+                for signal in signals:
+                    var_id = signal.Name
+                    if signal.DataValue.Type == EPrimitiveDataType.Bool:
+                        value = signal.DataValue.Bool
+                    elif signal.DataValue.Type == EPrimitiveDataType.Int8:
+                        value = signal.DataValue.Int8
+                    elif signal.DataValue.Type == EPrimitiveDataType.Int16:
+                        value = signal.DataValue.Int16
+                    elif signal.DataValue.Type == EPrimitiveDataType.Int32:
+                        value = signal.DataValue.Int32
+                    elif signal.DataValue.Type == EPrimitiveDataType.Int64:
+                        value = signal.DataValue.Int64
+                    elif signal.DataValue.Type == EPrimitiveDataType.UInt8:
+                        value = signal.DataValue.UInt8
+                    elif signal.DataValue.Type == EPrimitiveDataType.UInt16:
+                        value = signal.DataValue.UInt16
+                    elif signal.DataValue.Type == EPrimitiveDataType.UInt32:
+                        value = signal.DataValue.UInt32
+                    elif signal.DataValue.Type == EPrimitiveDataType.UInt64:
+                        value = signal.DataValue.UInt64
+                    elif signal.DataValue.Type == EPrimitiveDataType.Float:
+                        value = signal.DataValue.Float
+                    elif signal.DataValue.Type == EPrimitiveDataType.Double:
+                        value = signal.DataValue.Double
+                    elif signal.DataValue.Type == EPrimitiveDataType.Char:
+                        value = signal.DataValue.Char
+                    res.append((var_id, value, VariableQuality.GOOD))  
         except Exception as e:
             if "NotUpToDate" in e.Message:
                 self.changeStatus(DriverStatus.ERROR)
@@ -172,7 +183,7 @@ class plcsim_advanced(driver):
         signals = []
         for (var_id, value) in variables:
             try:
-                if self.variables[var_id]['datatype'] == 'str':
+                if not self._EXCLUDE_STRING and self.variables[var_id]['datatype'] == 'str':
                     try:
                         value = self._connection.WriteString(var_id,value)
                         res.append((var_id, value, VariableQuality.GOOD))
