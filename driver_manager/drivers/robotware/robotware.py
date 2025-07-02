@@ -142,10 +142,12 @@ class robotware(driver):
         # Check variable elements
         for var_id, var_data in variables.items():
             try:
-                if var_id in ['Axis', 'ExtAxis']:
+                if var_id == 'Axis':
                     var_data['value'] = [None for i in range(var_data['size'])]
                     self.variables[var_id] = var_data
-                    continue
+                elif var_id == 'ExtAxis':
+                    var_data['value'] = [None for i in range(var_data['size'])]
+                    self.variables[var_id] = var_data
                 else:
                     signal = self._connection.IOSystem.GetSignal(var_id)
                     if signal:
@@ -158,7 +160,6 @@ class robotware(driver):
                                 var_data['value'] = value
                             self.variables[var_id] = var_data
                             self.sendDebugVarInfo((f'SETUP: Variable found {var_id}', var_id))
-                    continue
             except:
                 pass
 
@@ -174,15 +175,19 @@ class robotware(driver):
         res = []
         for var_id in variables:
             try:
-                if var_id in ['Axis', 'ExtAxis']:
+                if var_id == 'Axis':
                     mecunit = self._connection.MotionSystem.ActiveMechanicalUnit
                     pos = mecunit.GetPosition()
-                    if var_id == 'Axis':
-                        # robot axis rotations [Rax_1, Rax_2, Rax_3, Rax_4, Rax_5, Rax_6]
-                        new_value = [pos.RobAx.Rax_1, pos.RobAx.Rax_2, pos.RobAx.Rax_3, pos.RobAx.Rax_4, pos.RobAx.Rax_5, pos.RobAx.Rax_6]
-                    else:
-                        # robot external axis rotations [Eax_a, Eax_b, Eax_c, Eax_d, Eax_e, Eax_f]
-                        new_value = [pos.ExtAx.Eax_a, pos.ExtAx.Eax_b, pos.ExtAx.Eax_c, pos.ExtAx.Eax_d, pos.ExtAx.Eax_e, pos.ExtAx.Eax_f]
+                    # robot axis rotations [Rax_1, Rax_2, Rax_3, Rax_4, Rax_5, Rax_6]
+                    new_value = [pos.RobAx.Rax_1, pos.RobAx.Rax_2, pos.RobAx.Rax_3, pos.RobAx.Rax_4, pos.RobAx.Rax_5, pos.RobAx.Rax_6]
+                    # Round
+                    new_value = [round(x,3) for x in new_value]
+                    res.append((var_id, new_value, VariableQuality.GOOD))
+                elif var_id == 'ExtAxis':
+                    mecunit = self._connection.MotionSystem.ActiveMechanicalUnit
+                    pos = mecunit.GetPosition()
+                    # robot external axis rotations [Eax_a, Eax_b, Eax_c, Eax_d, Eax_e, Eax_f]
+                    new_value = [pos.ExtAx.Eax_a, pos.ExtAx.Eax_b, pos.ExtAx.Eax_c, pos.ExtAx.Eax_d, pos.ExtAx.Eax_e, pos.ExtAx.Eax_f]
                     # Round
                     new_value = [round(x,3) for x in new_value]
                     res.append((var_id, new_value, VariableQuality.GOOD))

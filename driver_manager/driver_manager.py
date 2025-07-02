@@ -6,7 +6,7 @@ import enum
 
 from driver_manager.drivers import *
 
-VERSION = "2.0.3"
+VERSION = "2.0.4"
 
 def RunDriverManager(pipe:multiprocessing.Pipe, use_processes:bool=False, status_file_path:str='') -> None:
     _object = DriverManager(use_processes, status_file_path)
