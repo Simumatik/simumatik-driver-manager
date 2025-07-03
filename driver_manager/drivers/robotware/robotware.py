@@ -64,11 +64,15 @@ class robotware(driver):
     This driver uses the RobotWare API to connect to a robot controller.
     
     The driver will always provide access to the robot axis through the variable called "Axis" (float[6]).
+    If the length of Axis is > 6 it will return external axis
     It can even provide access to external axis through "ExtAxis" variable (float[6]).
     Optional variable definitions are used to access Input and Output signals to be read or written by the driver.
 
     controller: str
         Robot name in RobotWare. Default = '', will take the first that founds.
+    
+    mec_unit: str
+        The mechanical unit to be used. Default = '', uses the active one.
     '''
 
     def __init__(self, name: str, pipe: multiprocessing.Pipe = None, params:dict = None):
@@ -81,7 +85,7 @@ class robotware(driver):
 
         # Parameters
         self.controller = ''
-
+        self.mec_unit = ''
 
     def connect(self) -> bool:
         """ Connect driver.
@@ -113,6 +117,15 @@ class robotware(driver):
                         if self._connection:
                             # Log on
                             self._connection.Logon(UserInfo.DefaultUser)
+                            # Check if mec_unit exists
+                            if self.mec_unit != '': 
+                                for mec_unit in self._connection.MotionSystem.MechanicalUnits:
+                                    if mec_unit.ToString() == self.mec_unit:
+                                        self._unit = mec_unit
+                                        break
+                                else:
+                                    self.sendDebugInfo((f'Mec_unit not found: {self.mec_unit}'))
+                                    return False
                             # Done
                             return True
                         else:
@@ -145,9 +158,6 @@ class robotware(driver):
                 if var_id == 'Axis':
                     var_data['value'] = [None for i in range(var_data['size'])]
                     self.variables[var_id] = var_data
-                elif var_id == 'ExtAxis':
-                    var_data['value'] = [None for i in range(var_data['size'])]
-                    self.variables[var_id] = var_data
                 else:
                     signal = self._connection.IOSystem.GetSignal(var_id)
                     if signal:
@@ -165,7 +175,6 @@ class robotware(driver):
 
             self.sendDebugVarInfo((f'SETUP: Variable not found {var_id}', var_id))
 
-
     def readVariables(self, variables: list) -> list:
         """ Read given variable values. In case that the read is not possible or generates an error BAD quality should be returned.
         : param variables: List of variable ids to be read. 
@@ -176,20 +185,19 @@ class robotware(driver):
         for var_id in variables:
             try:
                 if var_id == 'Axis':
-                    mecunit = self._connection.MotionSystem.ActiveMechanicalUnit
+                    if self.mec_unit == '':
+                        mecunit = self._connection.MotionSystem.ActiveMechanicalUnit
+                    else:
+                        mecunit = self._unit
                     pos = mecunit.GetPosition()
+                    size = self.variables[var_id]['size']
                     # robot axis rotations [Rax_1, Rax_2, Rax_3, Rax_4, Rax_5, Rax_6]
                     new_value = [pos.RobAx.Rax_1, pos.RobAx.Rax_2, pos.RobAx.Rax_3, pos.RobAx.Rax_4, pos.RobAx.Rax_5, pos.RobAx.Rax_6]
-                    # Round
-                    new_value = [round(x,3) for x in new_value]
-                    res.append((var_id, new_value, VariableQuality.GOOD))
-                elif var_id == 'ExtAxis':
-                    mecunit = self._connection.MotionSystem.ActiveMechanicalUnit
-                    pos = mecunit.GetPosition()
                     # robot external axis rotations [Eax_a, Eax_b, Eax_c, Eax_d, Eax_e, Eax_f]
-                    new_value = [pos.ExtAx.Eax_a, pos.ExtAx.Eax_b, pos.ExtAx.Eax_c, pos.ExtAx.Eax_d, pos.ExtAx.Eax_e, pos.ExtAx.Eax_f]
+                    if size>6:
+                        new_value += [pos.ExtAx.Eax_a, pos.ExtAx.Eax_b, pos.ExtAx.Eax_c, pos.ExtAx.Eax_d, pos.ExtAx.Eax_e, pos.ExtAx.Eax_f]
                     # Round
-                    new_value = [round(x,3) for x in new_value]
+                    new_value = [round(x,3) for x in new_value[:size]]
                     res.append((var_id, new_value, VariableQuality.GOOD))
                 else:
                     new_value = self.get_signal_value(self.variables[var_id]['signal'], self.variables[var_id]['datatype'])
