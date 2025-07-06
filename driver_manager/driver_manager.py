@@ -6,7 +6,7 @@ import enum
 
 from driver_manager.drivers import *
 
-VERSION = "2.0.4"
+VERSION = "2.0.5"
 
 def RunDriverManager(pipe:multiprocessing.Pipe, use_processes:bool=False, status_file_path:str='') -> None:
     _object = DriverManager(use_processes, status_file_path)
@@ -299,15 +299,18 @@ class DriverManager():
             can_sleep = True
             # Send commands
             counter = 0
-            while pipe.poll():
-                can_sleep = False
-                (command, data) = pipe.recv()
-                res_data = self.send_command(command, data)
-                if res_data is not None:
-                    pipe.send((command, res_data))
-                counter += 1
-                if counter>=10: 
-                    break
+            try:
+                while pipe.poll():
+                    can_sleep = False
+                    (command, data) = pipe.recv()
+                    res_data = self.send_command(command, data)
+                    if res_data is not None:
+                        pipe.send((command, res_data))
+                    counter += 1
+                    if counter>=10: 
+                        break
+            except:
+                pass
                 
             # Run Once and return updates
             if self._running:
