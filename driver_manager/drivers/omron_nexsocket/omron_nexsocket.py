@@ -65,7 +65,7 @@ class omron_nexsocket(driver):
                     OmronSysmac_path = winreg.QueryValueEx(key, "INSTALLPATH")[0]
                     break
 
-            self._connection = ctypes.WinDLL(OmronSysmac_path+'\\MATLAB\\Win32\\NexSocket.dll')
+            self._connection = ctypes.WinDLL(OmronSysmac_path+'\\MATLAB\\Win64\\NexSocket.dll')
             res = self._connection.NexSock_initialize()
             assert res>0, f'NexSocket initialization failed.'
             self._handle = ctypes.c_short()

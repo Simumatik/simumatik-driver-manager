@@ -222,6 +222,7 @@ class DriverManager():
 
         :returns: True if there is any update data to be retrieved, getUpdates() should be called.
         """
+        entry_time = time.perf_counter()
         for driver_struct in self._drivers.values():
             counter = 0
             while driver_struct.pipe.poll():
@@ -260,7 +261,7 @@ class DriverManager():
                 else:
                     self.log("error", f"Driver Manager: Message received from {driver_struct.name}, {command} -> {data}")
                 counter += 1
-                if counter>=max_pipe_loops: 
+                if counter>=max_pipe_loops or (time.perf_counter() - entry_time) >= 1.0: 
                     break
 
         # Write status file
@@ -274,7 +275,7 @@ class DriverManager():
             if self._status_file_path:
                 self.save_status(now_sec)
 
-        return self._status_updates or self._info_updates or self._var_info_updates or self._value_updates
+        return self._status_updates or self._info_updates or self._var_info_updates or self._value_updates or self._stats_updates
 
     def get_updates(self)->tuple:
         """
