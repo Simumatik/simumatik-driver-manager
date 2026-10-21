@@ -33,7 +33,7 @@ try:
         while True:
             path,_,_ = winreg.EnumValue(main_key, i)
             i += 1
-            if "SPiiPlus .NET Library\ACS.SPiiPlusNET.dll" in path:
+            if "SPiiPlus .NET Library\\ACS.SPiiPlusNET.dll" in path:
                 dll_path = '\\'.join(path.split('\\')[:-1])
                 sys.path.append(dll_path) # Add path to system pat
 
