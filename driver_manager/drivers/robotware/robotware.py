@@ -36,7 +36,16 @@ try:
 
             if "RobotStudio" in result:
                 key = winreg.OpenKey(main_key, result)
-                robotstudio_path = winreg.QueryValueEx(key, "InstallDir")[0] + "Bin"
+                install_dir = winreg.QueryValueEx(key, "InstallDir")[0]
+
+                # Prefer .NET Framework 4.8 assemblies (RobotStudio 2026+)
+                net48_path = os.path.join(install_dir, "Bin-net48")
+                bin_path = os.path.join(install_dir, "Bin")
+
+                robotstudio_path = (
+                    net48_path if os.path.isdir(net48_path) else bin_path
+                )
+
                 sys.path.append(robotstudio_path) # Add path to system path
 
                 import clr
@@ -47,8 +56,8 @@ try:
 
                 ABB_SDK_FOUND = True
                 break
-except:
-    pass
+except Exception as e:
+    print(f"Error occurred: {e}")
 
 SIGNAL_ANALOGINPUT = 0
 SIGNAL_ANALOGOUTPUT = 1

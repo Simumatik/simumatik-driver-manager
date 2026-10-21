@@ -465,8 +465,8 @@ setup_data.update({
 
 # robotware
 setup_data.update({
-    "robotware": {
-        "DRIVER": "robotware", 
+    "abb_driver": {
+        "DRIVER": "abb_driver", 
         "SETUP": {
             "parameters": {
                 "controller": "Robot"
