@@ -469,7 +469,7 @@ setup_data.update({
         "DRIVER": "abb_driver", 
         "SETUP": {
             "parameters": {
-                "controller": "Robot"
+                "controller": "7600-200132"
             },
             "variables": {
                 "Axis":{"datatype": VariableDatatype.FLOAT, "size": 6, "operation": VariableOperation.READ},

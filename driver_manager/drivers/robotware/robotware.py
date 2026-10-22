@@ -180,9 +180,7 @@ class robotware(driver):
                             self.variables[var_id] = var_data
                             self.sendDebugVarInfo((f'SETUP: Variable found {var_id}', var_id))
             except:
-                pass
-
-            self.sendDebugVarInfo((f'SETUP: Variable not found {var_id}', var_id))
+                self.sendDebugVarInfo((f'SETUP: Variable not found {var_id}', var_id))
 
     def readVariables(self, variables: list) -> list:
         """ Read given variable values. In case that the read is not possible or generates an error BAD quality should be returned.
