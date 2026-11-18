@@ -29,7 +29,7 @@ from ..driver import driver, VariableOperation
 
 class plcsim(driver):
     '''
-    Driver to communicate with Siemens PLCSim using S7Onlinx.dll.
+    Driver to communicate with Siemens PLCSim using .dll.
     Compatible with PLCSim Tia Portal. Pending testing it against older PLCSim.
 
     Parameters:
@@ -77,7 +77,7 @@ class plcsim(driver):
         : returns: True if connection established False if not
         """
         try:
-            self._connection = ctypes.WinDLL('s7onlinx.dll')
+            self._connection = ctypes.WinDLL('s7onlinx64.dll')
             self.connectionHandle = 0
             self.app_opcode = 0
             self.app_subs = 0
@@ -85,7 +85,7 @@ class plcsim(driver):
             self.opt = (self.mode == 'S7commPlus')
 
         except Exception as e:
-            self.sendDebugInfo(f"s7onlinx.dll cannot be loaded!")
+            self.sendDebugInfo(f"s7onlinx64.dll cannot be loaded!")
             return False
 
         if self.connectPLCSim(ip=self.ip, rack=self.rack, slot=self.slot):
