@@ -233,7 +233,7 @@ class plcsim(driver):
 
     def connectPLCSim(self, ip:str='192.168.0.1', rack:int=0, slot:int=1)->bool:
         try:
-            self.connectionHandle = self._connection.SCP_open('S7ONLINE'.encode('utf-8')) # Encoding is very important
+            self.connectionHandle = self._connection.SCP_openW("S7ONLINE")
             e = self._connection.SCP_get_errno()
             if self.connectionHandle>0 and e == 0:                
                 # Get Reachable Partners
